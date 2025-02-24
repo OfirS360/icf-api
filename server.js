@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 app.post("/RegisterFormSend", (req, res) => {
     const {FullName, Age, ArmaExperience, ArmaHours, PreviousClans, ClanIssues, JoinReason, MilitaryExperience, WeeklyHours, FridayAvailable, Avilability } = req.body;
 
-    const query = "INSERT INTO `RegistrationForm` (full_name, age, arma_experience, arma_hours, previous_clans, clan_issues, join_reason, military_experience, weekly_hours, friday_availabilit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const query = "INSERT INTO `RegistrationForm` (full_name, age, arma_experience, arma_hours, previous_clans, clan_issues, join_reason, military_experience, weekly_hours, friday_availability) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     const values = [FullName, Age, ArmaExperience, ArmaHours, PreviousClans, ClanIssues, JoinReason, MilitaryExperience, WeeklyHours, FridayAvailable, Avilability];
 
     console.log(values)
