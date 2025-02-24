@@ -6,7 +6,6 @@
     "mysql2": "^3.12.0",
     "steam-web-api": "^0.0.1"
   },
-
   "scripts": {
     "start": "node server"
   }
