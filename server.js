@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 app.post("/RegisterFormSend", (req, res) => {
     const {FullName, Age, ArmaExperience, ArmaHours, PreviousClans, ClanIssues, JoinReason, MilitaryExperience, WeeklyHours, FridayAvailable, Avilability } = req.body;
 
-    const query = "INSERT INTO `RegistrationForm` (`FullName`, `Age`, `ArmaExperience`, `ArmaHours`, `PreviousClans`, `ClanIssues`, `JoinReason`, `MilitaryExperience`, `WeeklyHours`, `FridayAvailable`, `Availability`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const query = "INSERT INTO `RegistrationForm` (`SteamId`, `Name`, `Password`, `Rank`, `Age`, `Role`, `Position`, `Status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     const values = [FullName, Age, ArmaExperience, ArmaHours, PreviousClans, ClanIssues, JoinReason, MilitaryExperience, WeeklyHours, FridayAvailable, Avilability];
 
     console.log(values)
