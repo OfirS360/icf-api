@@ -1,7 +1,6 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
-const ngrok = require('ngrok');
 
 const app = express();
 app.use(cors());
@@ -81,13 +80,6 @@ app.post("/Login", (req, res) => {
 });
 
 
-app.listen(27195, "0.0.0.0", () => {
+app.listen(3000, () => {
     console.log(`Server is running`);
-
-    ngrok.connect(`http://141.95.71.115:27195`).then(ngrokUrl => {
-        console.log(ngrokUrl)
-    })
-    .catch(err => {
-        console.log(err)
-    })
 });
