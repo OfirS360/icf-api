@@ -1,6 +1,7 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
+const axios = require("axios");
 
 const app = express();
 app.use(cors());
@@ -79,6 +80,19 @@ app.post("/Login", (req, res) => {
     })
 });
 
+const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
+
+app.get("/getSteamUser/:steamId", async (req, res) => {
+    const steamId = req.params.steamId;
+    const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+
+    try {
+        const response = await axios.get(url);
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: "שגיאה בקבלת הנתונים מ-Steam" });
+    }
+});
 
 app.listen(3000, () => {
     console.log(`Server is running`);
