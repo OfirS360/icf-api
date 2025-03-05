@@ -81,7 +81,8 @@ app.post("/Login", (req, res) => {
 });
 
 app.get("/GetCurrentMonthEvents", (req, res) => {
-    const {Year, Month} = req.body;
+    const Year = req.query.Year;
+    const Month = req.query.Month;
 
     const query = "SELECT * FROM `Events` WHERE YEAR(`Date`) = ? AND MONTH(`Date`) = ?;"
     const values = [Year, Month]
@@ -96,8 +97,8 @@ app.get("/GetCurrentMonthEvents", (req, res) => {
                 res.json({results: results})
             }
             else {
-                res.json({ success: false })
-            }
+                res.json({ results: [] })
+            }  
         }
     })
 })
