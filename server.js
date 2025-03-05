@@ -80,28 +80,6 @@ app.post("/Login", (req, res) => {
     })
 });
 
-app.post("/GetCurrentMonthEvents", (req, res) => {
-    const {Year, Month} = req.body;
-
-    const query = "SELECT * FROM `Events` WHERE YEAR(`Date`) = ? AND MONTH(`Date`) = ?;"
-    const values = [Year, Month]
-
-    db.query(query, values, (err, results) => {
-        if (err) {
-            res.status(500).send(err)
-            return
-        }
-        else {
-            if (results.length > 0) {
-                res.json({results: results})
-            }
-            else {
-                res.json({ success: false })
-            }
-        }
-    })
-})
-
 const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
 
 app.get("/getSteamUser/:steamId", async (req, res) => {
@@ -114,7 +92,7 @@ app.get("/getSteamUser/:steamId", async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "שגיאה בקבלת הנתונים מ-Steam" });
     }
-}); 
+});
 
 app.listen(3000, () => {
     console.log(`Server is running`);
