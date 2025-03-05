@@ -103,6 +103,30 @@ app.get("/GetCurrentMonthEvents", (req, res) => {
     })
 })
 
+app.get("/GetCurrentDayEvent", (req, res) => {
+    const Year = req.query.Year;
+    const Month = req.query.Month;
+    const Day = req.query.Day;
+
+    const query = "SELECT * FROM `Events` WHERE YEAR(`Date`) = ? AND MONTH(`Date`) = ? AND DAY(`Date`) = ?;"
+    const values = [Year, Month, Day]
+
+    db.query(query, values, (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+            return
+        }
+        else {
+            if (results.length > 0) {
+                res.json({results: results})
+            }
+            else {
+                res.json({ results: [] })
+            }  
+        }
+    })
+})
+
 const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
 
 app.get("/getSteamUser/:steamId", async (req, res) => {
