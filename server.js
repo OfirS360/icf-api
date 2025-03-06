@@ -127,6 +127,31 @@ app.get("/GetCurrentDayEvent", (req, res) => {
     })
 })
 
+app.get("/GetCloseEvents", (req, res) => {
+    const now = new Date();
+    const Year = now.getFullYear();
+    const Month = String(now.getMonth() + 1).padStart(2, '0');
+    const Day = String(now.getDate()).padStart(2, '0');
+
+    currectdate = `${Year}-${Month}-${Day}`
+    const query = "SELECT * FROM `Events` WHERE `Date` > ?;"
+
+    db.query(query, [currectdate], (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+            return
+        }
+        else {
+            if (results.length > 0) {
+                res.json({results: results})
+            }
+            else {
+                res.json({ results: [] })
+            }  
+        }
+    })
+})
+
 const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
 
 app.get("/getSteamUser/:steamId", async (req, res) => {
