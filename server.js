@@ -41,8 +41,24 @@ app.post("/RegisterFormSend", (req, res) => {
     const query = "INSERT INTO `RegistrationForm` (full_name, age, arma_experience, arma_hours, previous_clans, clan_issues, join_reason, military_experience, weekly_hours, friday_availability) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     const values = [FullName, Age, ArmaExperience, ArmaHours, PreviousClans, ClanIssues, JoinReason, MilitaryExperience, WeeklyHours, FridayAvailable, Avilability];
 
-    console.log(values)
-    console.log(req.body);
+    db.query(query, values, (err, results) => {
+        if (err) {
+            console.error("Database Error:", err);
+            res.status(500).send(err);
+        } else {
+            res.json({
+                message: "Form registered successfully",
+                results: results
+            });
+        }
+    });
+});
+
+app.post("/EventFormSend", (req, res) => {
+    const {Title, Description, Date, Creator, Time, Type} = req.body;
+
+    const query = "INSERT INTO `Events` (Title, Description, Date, Creator, Time, EventType) VALUES (?, ?, ?, ?, ?, ?)";
+    const values = [Title, Description, Date, Creator, Time, Type];
 
     db.query(query, values, (err, results) => {
         if (err) {
