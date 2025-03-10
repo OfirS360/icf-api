@@ -96,14 +96,11 @@ app.post("/Login", (req, res) => {
     })
 });
 
-app.get("/GetCurrentMonthEvents", (req, res) => {
-    const Year = req.query.Year;
-    const Month = req.query.Month;
+app.get("/GetAllEvents", (req, res) => {
 
-    const query = "SELECT * FROM `Events` WHERE YEAR(`Date`) = ? AND MONTH(`Date`) = ?;"
-    const values = [Year, Month]
+    const query = "SELECT * FROM `Events`;"
 
-    db.query(query, values, (err, results) => {
+    db.query(query, (err, results) => {
         if (err) {
             res.status(500).send(err)
             return
