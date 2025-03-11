@@ -55,26 +55,6 @@ app.post("/RegisterFormSend", (req, res) => {
     });
 });
 
-app.post("/EventFormSend", (req, res) => {
-    const {Title, Description, Date, Creator, Time, Type} = req.body;
-
-    const query = "INSERT INTO `Events` (Title, Description, Date, Creator, Time, EventType) VALUES (?, ?, ?, ?, ?, ?)";
-    const values = [Title, Description, Date, Creator, Time, Type];
-
-    db.query(query, values, (err, results) => {
-        if (err) {
-            console.error("Database Error:", err);
-            res.status(500).send(err);
-        } else {
-            res.json({
-                message: "Form registered successfully",
-                results: results
-            });
-        }
-    });
-});
-
-
 app.post("/Login", (req, res) => {
     const {SteamId, Password} = req.body;
 
@@ -95,6 +75,75 @@ app.post("/Login", (req, res) => {
             }
         }
     })
+});
+
+app.post("/EventFormSend", (req, res) => {
+    const {Title, Description, Date, Creator, Time, Type} = req.body;
+    const Hitpakdut = JSON.stringify([{
+        "Mavreg": [],
+        "Mechine": [],
+        "Akrav": [],
+        "Tiltan": [],
+        "Lavie": [],
+        "NotComing": []
+    }]) 
+
+    const query = "INSERT INTO `Events` (Title, Description, Date, Creator, Time, EventType, Hitpakdut) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const values = [Title, Description, Date, Creator, Time, Type, Hitpakdut];
+
+    db.query(query, values, (err, results) => {
+        if (err) {
+            console.error("Database Error:", err);
+            res.status(500).send(err);
+        } else {
+            res.json({
+                message: "Form registered successfully",
+                results: results
+            });
+        }
+    });
+});
+
+app.post("/UpdateHitpakdut", (req, res) => {
+    const {IsComing, Id, SteamId, Team} = req.body;
+
+    const query = "SELECT `Hitpakdut` FROM `Events` WHERE `Id` = ?";
+    const values = [Id];
+
+    db.query(query, values, (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+            return
+        }
+        else {
+            if (results.length > 0) {
+                let JsonHitpakdut = JSON.parse(results[0].Hitpakdut)
+
+                JsonHitpakdut.NotComing = JsonHitpakdut.NotComing.filter(id => id !== SteamId);
+                JsonHitpakdut[Team] = JsonHitpakdut[Team].filter(id => id !== SteamId);
+
+                if (IsComing) {
+                    JsonHitpakdut[Team].push(SteamId)
+                }
+                else {
+                    JsonHitpakdut.NotComing.push(SteamId)
+                }
+                
+                const query2 = "UPDATE `Events` SET `Hitpakdut` = ? WHERE `Id` = ?";
+                const values2 = [JSON.stringify(JsonHitpakdut), Id];
+                db.query(query2, values2, (err, results) => {
+                    if (err) {
+                        res.status(500).send(err)
+                        return
+                    }
+                })
+            }
+            
+            else {
+                res.json({ results: [] })
+            }  
+        }
+    });
 });
 
 app.get("/GetAllEvents", (req, res) => {
@@ -118,29 +167,6 @@ app.get("/GetAllEvents", (req, res) => {
     })
 })
 
-app.get("/GetCurrentDayEvent", (req, res) => {
-    const Year = req.query.Year;
-    const Month = req.query.Month;
-    const Day = req.query.Day;
-
-    const query = "SELECT * FROM `Events` WHERE YEAR(`Date`) = ? AND MONTH(`Date`) = ? AND DAY(`Date`) = ?;"
-    const values = [Year, Month, Day]
-
-    db.query(query, values, (err, results) => {
-        if (err) {
-            res.status(500).send(err)
-            return
-        }
-        else {
-            if (results.length > 0) {
-                res.json({results: results})
-            }
-            else {
-                res.json({ results: [] })
-            }  
-        }
-    })
-})
 
 app.get("/GetCloseEvents", (req, res) => {
     const now = new Date();
