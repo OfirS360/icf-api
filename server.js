@@ -105,7 +105,11 @@ app.post("/EventFormSend", (req, res) => {
 });
 
 app.post("/UpdateHitpakdut", (req, res) => {
-    const {IsComing, Id, SteamId, Team} = req.body;
+    req.setTimeout(10000, () => {
+        res.status(504).send({ error: 'Gateway Timeout' });
+    });
+
+    const {Team, IsComing, Id, SteamId} = req.body;
 
     const query = "SELECT `Hitpakdut` FROM `Events` WHERE `Id` = ?";
     const values = [Id];
@@ -138,7 +142,7 @@ app.post("/UpdateHitpakdut", (req, res) => {
                     }
                 })
             }
-            
+
             else {
                 res.json({ results: [] })
             }  
