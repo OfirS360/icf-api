@@ -21,6 +21,7 @@ const db = mysql.createConnection({
     user: "icfweb",
     password: "123456icf",
     database: "test",
+    connectTimeout: 10000
 });
 
 db.connect(err => {
@@ -103,6 +104,7 @@ app.get("/GetAllEvents", (req, res) => {
     db.query(query, (err, results) => {
         if (err) {
             res.status(500).send(err)
+            console.error("Database connection failed:", err);
             return
         }
         else {
