@@ -153,6 +153,28 @@ app.post("/UpdateHitpakdut", (req, res) => {
     });
 });
 
+app.get("/GetEventHitpakdut", (req, res) => {
+    let EventId = req.query.EventId
+
+    const query = "SELECT `Hitpakdut` FROM `Events` WHERE Id = ?;"
+
+    db.query(query, EventId, (err, results) => {
+        if (err) {
+            res.status(500).send(err)
+            console.error("Database connection failed:", err);
+            return
+        }
+        else {
+            if (results.length > 0) {
+                res.json({results: results})
+            }
+            else {
+                res.json({ results: [] })
+            }  
+        }
+    })
+})
+
 app.get("/GetAllEvents", (req, res) => {
 
     const query = "SELECT * FROM `Events`;"
