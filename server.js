@@ -104,7 +104,7 @@ app.post("/EventFormSend", (req, res) => {
     });
 });
 
-app.post("/UpdateHitpakdut", (req, res) => {
+app.get("/UpdateHitpakdut", (req, res) => {
     req.setTimeout(10000, () => {
         res.status(504).send({ error: 'Gateway Timeout' });
     });
@@ -121,6 +121,8 @@ app.post("/UpdateHitpakdut", (req, res) => {
         }
         else {
             if (results.length > 0) {
+                res.json({results: results})
+
                 let JsonHitpakdut = JSON.parse(results[0].Hitpakdut)
 
                 JsonHitpakdut.NotComing = JsonHitpakdut.NotComing.filter(id => id !== SteamId);
