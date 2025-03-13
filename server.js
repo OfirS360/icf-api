@@ -93,14 +93,14 @@ app.post("/Login", (req, res) => {
 
 app.post("/EventFormSend", (req, res) => {
     const {Title, Description, Date, Creator, Time, Type} = req.body;
-    const Hitpakdut = JSON.stringify([{
+    const Hitpakdut = JSON.stringify({
         "Mavreg": [],
         "Mechine": [],
         "Akrav": [],
         "Tiltan": [],
         "Lavie": [],
         "NotComing": []
-    }]) 
+    }) 
 
     const query = "INSERT INTO `Events` (Title, Description, Date, Creator, Time, EventType, Hitpakdut) VALUES (?, ?, ?, ?, ?, ?, ?)";
     const values = [Title, Description, Date, Creator, Time, Type, Hitpakdut];
