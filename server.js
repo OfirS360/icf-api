@@ -24,13 +24,6 @@ const db = mysql.createPool({
     connectTimeout: 10000
 });
 
-db.connect(err => {
-    if (err) {
-        console.error("Error trying to connect SQL", err);
-        return;
-    }
-    console.log("Connected to SQL");
-});
 
 app.get("/", (req, res) => {
     res.send("API is running...");
@@ -42,17 +35,27 @@ app.post("/RegisterFormSend", (req, res) => {
     const query = "INSERT INTO `RegistrationForm` (full_name, age, arma_experience, arma_hours, previous_clans, clan_issues, join_reason, military_experience, weekly_hours, friday_availability) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     const values = [FullName, Age, ArmaExperience, ArmaHours, PreviousClans, ClanIssues, JoinReason, MilitaryExperience, WeeklyHours, FridayAvailable, Avilability];
 
-    db.query(query, values, (err, results) => {
+    db.getConnection((err, connection) => {
         if (err) {
-            console.error("Database Error:", err);
+            console.error('Error getting DB connection:', err);
             res.status(500).send(err);
-        } else {
-            res.json({
-                message: "Form registered successfully",
-                results: results
-            });
+            return;
         }
-    });
+        connection.query(query, values, (err, results) => {
+            connection.release()
+
+            if (err) {
+                console.error("Database Error:", err);
+                res.status(500).send(err);
+            } else {
+                res.json({
+                    message: "Form registered successfully",
+                    results: results
+                });
+            }
+        });
+    })
+    
 });
 
 app.post("/Login", (req, res) => {
@@ -61,20 +64,31 @@ app.post("/Login", (req, res) => {
     const query = "SELECT * FROM `Users` WHERE (`SteamId` = ? AND `Password` = ?)"
     const values = [SteamId, Password]
 
-    db.query(query, values, (err, results) => {
+
+    db.getConnection((err, connection) => {
         if (err) {
-            res.status(500).send(err)
-            return
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
         }
-        else {
-            if (results.length > 0) {
-                res.json({ success: true, results: results[0] })
+        connection.query(query, values, (err, results) => {
+            connection.release()
+
+            if (err) {
+                res.status(500).send(err)
+                return
             }
             else {
-                res.json({ success: false })
+                if (results.length > 0) {
+                    res.json({ success: true, results: results[0] })
+                }
+                else {
+                    res.json({ success: false })
+                }
             }
-        }
+        })
     })
+    
 });
 
 app.post("/EventFormSend", (req, res) => {
@@ -91,17 +105,28 @@ app.post("/EventFormSend", (req, res) => {
     const query = "INSERT INTO `Events` (Title, Description, Date, Creator, Time, EventType, Hitpakdut) VALUES (?, ?, ?, ?, ?, ?, ?)";
     const values = [Title, Description, Date, Creator, Time, Type, Hitpakdut];
 
-    db.query(query, values, (err, results) => {
+    db.getConnection((err, connection) => {
         if (err) {
-            console.error("Database Error:", err);
+            console.error('Error getting DB connection:', err);
             res.status(500).send(err);
-        } else {
-            res.json({
-                message: "Form registered successfully",
-                results: results
-            });
+            return;
         }
-    });
+        connection.query(query, values, (err, results) => {
+            connection.release()
+
+            if (err) {
+                console.error("Database Error:", err);
+                res.status(500).send(err);
+            } else {
+                res.json({
+                    message: "Form registered successfully",
+                    results: results
+                });
+            }
+        });
+    })
+
+    
 });
 
 app.post("/UpdateHitpakdut", (req, res) => {
@@ -109,90 +134,132 @@ app.post("/UpdateHitpakdut", (req, res) => {
         res.status(504).send({ error: 'Gateway Timeout' });
     });
 
-    const {Team, IsComing, Id, SteamId} = req.body;
+    const { Team, IsComing, Id, SteamId } = req.body;
 
     const query = "SELECT `Hitpakdut` FROM `Events` WHERE `Id` = ?";
     const values = [Id];
 
-    db.query(query, values, (err, results) => {
+    db.getConnection((err, connection) => {
         if (err) {
-            res.status(500).send(err)
-            return
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
         }
-        else {
+
+        connection.query(query, values, (err, results) => {
+            if (err) {
+                connection.release();
+                console.error('Error executing SELECT query:', err);
+                res.status(500).send(err);
+                return;
+            }
+
             if (results.length > 0) {
-                
-                let JsonHitpakdut = JSON.parse(results[0].Hitpakdut)
+                let JsonHitpakdut = JSON.parse(results[0].Hitpakdut);
 
                 JsonHitpakdut.NotComing = JsonHitpakdut.NotComing.filter(id => id !== SteamId);
                 JsonHitpakdut[Team] = JsonHitpakdut[Team].filter(id => id !== SteamId);
 
                 if (IsComing) {
-                    JsonHitpakdut[Team].push(SteamId)
+                    JsonHitpakdut[Team].push(SteamId);
+                } else {
+                    JsonHitpakdut.NotComing.push(SteamId);
                 }
-                else {
-                    JsonHitpakdut.NotComing.push(SteamId)
-                }
-                
-                res.json({results: JsonHitpakdut})
+
+                res.json({ results: JsonHitpakdut });
 
                 const query2 = "UPDATE `Events` SET `Hitpakdut` = ? WHERE `Id` = ?";
                 const values2 = [JSON.stringify(JsonHitpakdut), Id];
-                db.query(query2, values2, (err, results) => {
+
+                db.getConnection((err, connection2) => {
                     if (err) {
-                        res.status(500).send(err)
-                        return
+                        connection.release();
+                        console.error('Error getting DB connection for update:', err);
+                        res.status(500).send(err);
+                        return;
                     }
-                })
+
+                    connection2.query(query2, values2, (err, results2) => {
+                        connection2.release();
+
+                        if (err) {
+                            console.error('Error executing UPDATE query:', err);
+                            res.status(500).send(err);
+                            return;
+                        }
+                    });
+                });
+            } else {
+                res.json({ results: [] });
             }
 
-            else {
-                res.json({ results: [] })
-            }  
-        }
+            connection.release();
+        });
     });
 });
+
 
 app.get("/GetEventHitpakdut", (req, res) => {
     let EventId = req.query.EventId
 
     const query = "SELECT `Hitpakdut` FROM `Events` WHERE Id = ?;"
 
-    db.query(query, EventId, (err, results) => {
+    db.getConnection((err, connection) => {
         if (err) {
-            res.status(500).send(err)
-            console.error("Database connection failed:", err);
-            return
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
         }
-        else {
-            if (results.length > 0) {
-                res.json({results: results})
+
+        db.query(query, EventId, (err, results) => {
+            connection.release();
+
+            if (err) {
+                res.status(500).send(err)
+                console.error("Database connection failed:", err);
+                return
             }
             else {
-                res.json({ results: [] })
-            }  
-        }
+                if (results.length > 0) {
+                    res.json({results: results})
+                }
+                else {
+                    res.json({ results: [] })
+                }  
+            }
+        })
     })
+    
 })
 
 app.get("/GetAllEvents", (req, res) => {
 
     const query = "SELECT * FROM `Events`;"
 
-    db.query(query, (err, results) => {
+    db.getConnection((err, connection) => {
         if (err) {
-            res.status(500).send(err)
-            console.error("Database connection failed:", err);
-            return
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
         }
-        else {
-            if (results.length > 0) {
-                res.json({results: results})
+
+        connection.query(query, (err, results) => {
+            connection.release();
+
+            if (err) {
+                res.status(500).send(err)
+                console.error("Database connection failed:", err);
+                return
             }
             else {
-                res.json({ results: [] })
-            }  
-        }
+                if (results.length > 0) {
+                    res.json({results: results})
+                }
+                else {
+                    res.json({ results: [] })
+                }  
+            }
+        })
     })
 })
 
@@ -203,23 +270,32 @@ app.get("/GetCloseEvents", (req, res) => {
     const Month = String(now.getMonth() + 1).padStart(2, '0');
     const Day = String(now.getDate()).padStart(2, '0');
 
-    currectdate = `${Year}-${Month}-${Day}`
+    const currentDate = `${Year}-${Month}-${Day}`
     const query = "SELECT * FROM `Events` WHERE `Date` > ?;"
 
-    db.query(query, [currectdate], (err, results) => {
+    db.getConnection((err, connection) => {
         if (err) {
-            res.status(500).send(err)
-            return
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
         }
-        else {
-            if (results.length > 0) {
-                res.json({results: results})
+
+        connection.query(query, [currentDate], (err, results) => {
+            connection.release();
+
+            if (err) {
+                console.error('Database query error:', err);
+                res.status(500).send(err);
+                return;
             }
-            else {
-                res.json({ results: [] })
-            }  
-        }
-    })
+
+            if (results.length > 0) {
+                res.json({ results: results });
+            } else {
+                res.json({ results: [] });
+            }
+        });
+    });
 })
 
 const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
