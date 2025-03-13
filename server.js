@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 });
 
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: "95.217.11.99",
     port: "3307",
     user: "icfweb",
