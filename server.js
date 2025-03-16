@@ -86,6 +86,11 @@ app.get("/logout", (req, res) => {
     res.redirect("/");
 });
 
+app.get("/session-check", (req, res) => {
+    console.log("Session:", req.session);
+    res.json({ session: req.session, user: req.user });
+});
+
 app.post("/RegisterFormSend", (req, res) => {
     const {FullName, Age, ArmaExperience, ArmaHours, PreviousClans, ClanIssues, JoinReason, MilitaryExperience, WeeklyHours, FridayAvailable, Avilability } = req.body;
 
