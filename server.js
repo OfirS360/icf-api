@@ -2,10 +2,39 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const axios = require("axios");
+const passport = require("passport");
+const SteamStrategy = require("passport-steam").Strategy;
+const session = require("express-session");
+
+const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "https://icf.xitsraz.me",
+    methods: "GET, POST, PUT, DELETE, OPTIONS",
+    credentials: true
+}));
 app.use(express.json())
+app.use(session({
+    secret: "3E37434837BF21352A799F672E4062F1",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: true,
+        httpOnly: true,
+        sameSite: "none"
+}}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+
+passport.deserializeUser((obj, done) => {
+    done(null, obj);
+});
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "https://icf.xitsraz.me");
@@ -13,7 +42,6 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     next();
 });
-
 
 const db = mysql.createPool({
     host: "95.217.11.99",
@@ -24,9 +52,38 @@ const db = mysql.createPool({
     connectTimeout: 10000
 });
 
+passport.use(new SteamStrategy({
+    returnURL: "https://icf-api-ten.vercel.app/auth/steam/return",
+    realm: "https://icf-api-ten.vercel.app/",
+    apiKey: STEAM_API_KEY
+}, (identifier, profile, done) => {
+    profile.identifier = identifier;
+    return done(null, profile);
+}));
+
 
 app.get("/", (req, res) => {
     res.send("API is running...");
+});
+
+app.get("/auth/steam", passport.authenticate("steam"));
+
+app.get("/auth/steam/return",
+    passport.authenticate("steam", { failureRedirect: "/" }),
+    (req, res) => {
+        res.redirect("https://icf.xitsraz.me/homepage");
+});
+
+app.get("/profile", (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "User not authenticated" });
+    }
+    res.json(req.user);
+});
+
+app.get("/logout", (req, res) => {
+    req.logout(() => {});
+    res.redirect("/");
 });
 
 app.post("/RegisterFormSend", (req, res) => {
@@ -92,6 +149,10 @@ app.post("/Login", (req, res) => {
 });
 
 app.post("/EventFormSend", (req, res) => {
+    req.setTimeout(15000, () => {
+        res.status(504).send({ error: 'Gateway Timeout' });
+    });
+
     const {Title, Description, Date, Creator, Time, Type} = req.body;
     const Hitpakdut = JSON.stringify({
         "Mavreg": [],
@@ -297,8 +358,6 @@ app.get("/GetCloseEvents", (req, res) => {
         });
     });
 })
-
-const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
 
 app.get("/getSteamUser/:steamId", async (req, res) => {
     const steamId = req.params.steamId;
