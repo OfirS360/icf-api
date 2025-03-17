@@ -54,7 +54,7 @@ const db = mysql.createPool({
 });
 
 passport.use(new SteamStrategy({
-    returnURL: "https://icf-api-ten.vercel.app/auth/steam/return",
+    returnURL: "https://icf.xitsraz.me/homepage",
     realm: "https://icf.xitsraz.me/",
     apiKey: STEAM_API_KEY
 }, (identifier, profile, done) => {
@@ -69,12 +69,15 @@ app.get("/", (req, res) => {
 
 app.get("/auth/steam", passport.authenticate("steam"));
 
-app.get("/auth/steam/return",
-    passport.authenticate("steam", { failureRedirect: "/" }),
-    (req, res) => {
-        const token = jwt.sign({ user: req.user }, "ICFJWTKEY17032025", { expiresIn: "1h" });
+app.get("/auth/steam/return", async (req, res) => {
+    const {openid_claimed_id} = req.query;
 
-        res.redirect(`https://icf.xitsraz.me/homepage?token=${token}`);
+    const steamResponse = await axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_API_KEY}&steamids=${openid_claimed_id}`);
+    
+    const user = steamResponse.data.response.players[0];
+
+    req.session.user = user;
+    res.redirect("https://icf.xitsraz.me/homepage");
 });
 
 app.get("/profile", (req, res) => {
