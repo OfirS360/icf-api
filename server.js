@@ -143,15 +143,32 @@ app.post("/EventFormSend", (req, res) => {
         res.status(504).send({ error: 'Gateway Timeout' });
     });
 
-    const {Title, Description, Date, Creator, Time, Type} = req.body;
-    const Hitpakdut = JSON.stringify({
+    const {Title, Description, Date, Creator, Time, Type, Team} = req.body;
+
+    let Hitpakdut = JSON.stringify({
         "Mavreg": [],
         "Mechine": [],
         "Akrav": [],
         "Tiltan": [],
         "Lavie": [],
         "NotComing": []
-    }) 
+    })
+
+    if (Type === "משימה" || Type === "אימון")
+    {
+        Hitpakdut = JSON.stringify({
+            "Coming": [],
+            "NotComing": []
+        }) 
+    }
+
+    if (Type === "אימון צוותי") {
+        Hitpakdut = JSON.stringify({
+            [Team]: [],
+            "NotComing": []
+        })
+    }
+
 
     const query = "INSERT INTO `Events` (Title, Description, Date, Creator, Time, EventType, Hitpakdut) VALUES (?, ?, ?, ?, ?, ?, ?)";
     const values = [Title, Description, Date, Creator, Time, Type, Hitpakdut];
