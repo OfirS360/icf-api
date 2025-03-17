@@ -54,7 +54,7 @@ const db = mysql.createPool({
 
 passport.use(new SteamStrategy({
     returnURL: "https://icf-api-ten.vercel.app/auth/steam/return",
-    realm: "https://icf-api-ten.vercel.app/",
+    realm: "https://icf.xitsraz.me/",
     apiKey: STEAM_API_KEY
 }, (identifier, profile, done) => {
     profile.identifier = identifier;
