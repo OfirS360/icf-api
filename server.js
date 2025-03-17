@@ -69,34 +69,11 @@ app.get("/", (req, res) => {
 
 app.get("/auth/steam", passport.authenticate("steam"));
 
-app.get("/auth/steam/return", async (req, res) => {
-    const {openid_claimed_id} = req.query;
-
-    const steamResponse = await axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_API_KEY}&steamids=${openid_claimed_id}`);
-    
-    const user = steamResponse.data.response.players[0];
-
-    req.session.user = user;
-    res.redirect("https://icf.xitsraz.me/homepage");
-});
-
-app.get("/profile", (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: "User not authenticated" });
-    }
-    res.json(req.user);
-});
-
 app.get("/logout", (req, res, next) => {
     req.logout((err) => {
         if (err) return next(err);
         res.redirect("/");
     });
-});
-
-app.get("/session-check", (req, res) => {
-    console.log("Session:", req.session);
-    res.json({ session: req.session, user: req.user });
 });
 
 app.post("/RegisterFormSend", (req, res) => {
@@ -129,10 +106,10 @@ app.post("/RegisterFormSend", (req, res) => {
 });
 
 app.post("/Login", (req, res) => {
-    const {SteamId, Password} = req.body;
+    const {SteamId} = req.body;
 
-    const query = "SELECT * FROM `Users` WHERE (`SteamId` = ? AND `Password` = ?)"
-    const values = [SteamId, Password]
+    const query = "SELECT * FROM `Users` WHERE (`SteamId` = ?)"
+    const values = [SteamId]
 
 
     db.getConnection((err, connection) => {
