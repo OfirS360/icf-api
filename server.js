@@ -225,11 +225,26 @@ app.post("/UpdateHitpakdut", (req, res) => {
             if (results.length > 0) {
                 let JsonHitpakdut = JSON.parse(results[0].Hitpakdut);
 
+                let HitpakdutKeys = Object.keys(JsonHitpakdut)
+
                 JsonHitpakdut.NotComing = JsonHitpakdut.NotComing.filter(id => id !== SteamId);
-                JsonHitpakdut[Team] = JsonHitpakdut[Team].filter(id => id !== SteamId);
+
+                if (HitpakdutKeys[0] === "Coming") {
+                    JsonHitpakdut.Coming = JsonHitpakdut.Coming.filter(id => id !== SteamId);
+                }
+                else {
+                    JsonHitpakdut[Team] = JsonHitpakdut[Team].filter(id => id !== SteamId);
+                }
+
+                
 
                 if (IsComing) {
-                    JsonHitpakdut[Team].push(SteamId);
+                    if (HitpakdutKeys[0] === "Coming") {
+                        JsonHitpakdut.Coming.push(SteamId);
+                    }
+                    else {
+                        JsonHitpakdut[Team].push(SteamId);
+                    }
                 } else {
                     JsonHitpakdut.NotComing.push(SteamId);
                 }
