@@ -5,6 +5,7 @@ const axios = require("axios");
 const passport = require("passport");
 const SteamStrategy = require("passport-steam").Strategy;
 const session = require("express-session");
+const jwt = require("jsonwebtoken");
 
 const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
 
@@ -71,7 +72,9 @@ app.get("/auth/steam", passport.authenticate("steam"));
 app.get("/auth/steam/return",
     passport.authenticate("steam", { failureRedirect: "/" }),
     (req, res) => {
-        res.redirect("https://icf.xitsraz.me/homepage");
+        const token = jwt.sign({ user: req.user }, "ICFJWTKEY17032025", { expiresIn: "1h" });
+
+        res.redirect(`https://icf.xitsraz.me/homepage?token=${token}`);
 });
 
 app.get("/profile", (req, res) => {
@@ -81,9 +84,11 @@ app.get("/profile", (req, res) => {
     res.json(req.user);
 });
 
-app.get("/logout", (req, res) => {
-    req.logout(() => {});
-    res.redirect("/");
+app.get("/logout", (req, res, next) => {
+    req.logout((err) => {
+        if (err) return next(err);
+        res.redirect("/");
+    });
 });
 
 app.get("/session-check", (req, res) => {
