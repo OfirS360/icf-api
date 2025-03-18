@@ -54,7 +54,7 @@ const db = mysql.createPool({
 });
 
 passport.use(new SteamStrategy({
-    returnURL: "https://icf.xitsraz.me/homepage",
+    returnURL: "https://icf.xitsraz.me/User_Area/homepage",
     realm: "https://icf.xitsraz.me/",
     apiKey: STEAM_API_KEY
 }, (identifier, profile, done) => {
