@@ -102,7 +102,6 @@ app.post("/RegisterFormSend", (req, res) => {
             }
         });
     })
-    
 });
 
 app.post("/Login", (req, res) => {
@@ -379,6 +378,37 @@ app.get("/GetCloseEvents", (req, res) => {
             }
         });
     });
+})
+
+app.get("/GetAllItems", (req, res) => {
+
+    const query = "SELECT * FROM `Items`;"
+
+    db.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
+        }
+
+        connection.query(query, (err, results) => {
+            connection.release();
+
+            if (err) {
+                res.status(500).send(err)
+                console.error("Database connection failed:", err);
+                return
+            }
+            else {
+                if (results.length > 0) {
+                    res.json({results: results})
+                }
+                else {
+                    res.json({ results: [] })
+                }  
+            }
+        })
+    })
 })
 
 app.get("/getSteamUser/:steamId", async (req, res) => {
