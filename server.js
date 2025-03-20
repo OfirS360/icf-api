@@ -137,6 +137,38 @@ app.post("/Login", (req, res) => {
     
 });
 
+app.post("/ItemFormSend", (req, res) => {
+    req.setTimeout(15000, () => {
+        res.status(504).send({ error: 'Gateway Timeout' });
+    });
+
+    const {Title, Description, ItemId, Weight, Space, Limit, Team, Category, Pakal, Type, Image} = req.body;
+
+    const query = "INSERT INTO `Items` (`ItemId`, `Title`, `Description`, `Weight`, `Pakal`, `Category`, `Amount`, `Space`, `Team`, `Type`, `Image`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const values = [ItemId, Title, Description, Weight, Pakal, Category, Limit, Space, Team, Type, Image];
+
+    db.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
+        }
+        connection.query(query, values, (err, results) => {
+            connection.release()
+
+            if (err) {
+                console.error("Database Error:", err);
+                res.status(500).send(err);
+            } else {
+                res.json({
+                    message: "Form registered successfully",
+                    results: results
+                });
+            }
+        });
+    })
+});
+
 app.post("/EventFormSend", (req, res) => {
     req.setTimeout(15000, () => {
         res.status(504).send({ error: 'Gateway Timeout' });
@@ -192,8 +224,6 @@ app.post("/EventFormSend", (req, res) => {
             }
         });
     })
-
-    
 });
 
 app.post("/UpdateHitpakdut", (req, res) => {
