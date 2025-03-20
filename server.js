@@ -10,6 +10,10 @@ const jwt = require("jsonwebtoken");
 const STEAM_API_KEY = "3E37434837BF21352A799F672E4062F1";
 
 const app = express();
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 app.use(cors({
     origin: "https://icf.xitsraz.me",
     methods: "GET, POST, PUT, DELETE, OPTIONS",
