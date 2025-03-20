@@ -148,10 +148,10 @@ app.post("/ItemFormSend", (req, res) => {
 
     const {Title, Description, ItemId, Weight, Space, Limit, Team, Category, Pakal, Type, Image} = req.body;
 
-    const query = "INSERT INTO `Items` (`ItemId`, `Title`, `Description`, `Weight`, `Pakal`, `Category`, `Amount`, `Space`, `Team`, `Type`, `Image`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const query = "INSERT INTO `Items` (`ItemId`, `Title`, `Description`, `Weight`, `Pakal`, `Category`, `Limit`, `Space`, `Team`, `Type`, `Image`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     const values = [ItemId, Title, Description, Weight, Pakal, Category, Limit, Space, Team, Type, Image];
 
-    db.getConnection((err, connection) => {
+    db.getConnection((err, connection) => { 
         if (err) {
             console.error('Error getting DB connection:', err);
             res.status(500).send(err);
