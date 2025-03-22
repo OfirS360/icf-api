@@ -146,10 +146,10 @@ app.post("/ItemFormSend", (req, res) => {
         res.status(504).send({ error: 'Gateway Timeout' });
     });
 
-    const {Title, Description, ItemId, Weight, Space, Limit, Team, Category, Pakal, Type, Image} = req.body;
+    const {Title, Description, ItemId, Weight, Space, Limit, Team, Category, Pakal, Type, Image, AtchType, WeaponType, Caliber} = req.body;
 
-    const query = "INSERT INTO `Items` (`ItemId`, `Title`, `Description`, `Weight`, `Pakal`, `Category`, `Limit`, `Space`, `Team`, `Type`, `Image`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    const values = [ItemId, Title, Description, Weight, Pakal, Category, Limit, Space, Team, Type, Image];
+    const query = "INSERT INTO `Items` (`ItemId`, `Title`, `Description`, `Weight`, `Pakal`, `Category`, `Limit`, `Space`, `Team`, `Type`, `Image`, `AtchType`, `WeaponType`, `Caliber`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const values = [ItemId, Title, Description, Weight, Pakal, Category, Limit, Space, Team, Type, Image, AtchType, WeaponType, Caliber];
 
     db.getConnection((err, connection) => { 
         if (err) {
