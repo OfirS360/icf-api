@@ -445,6 +445,66 @@ app.get("/GetAllItems", (req, res) => {
     })
 })
 
+app.post("/SaveLoadout", (req, res) => {
+    req.setTimeout(15000, () => {
+        res.status(504).send({ error: 'Gateway Timeout' });
+    });
+
+    const {SteamId, Loadout} = req.body;
+
+    const query = "INSERT INTO `Loadouts` (`SteamId`, `Loadout`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `Loadout` = VALUES(Loadout)";
+
+    db.getConnection((err, connection) => { 
+        if (err) {
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
+        }
+        connection.query(query, [SteamId, Loadout], (err, results) => {
+            connection.release()
+
+            if (err) {
+                console.error("Database Error:", err);
+                res.status(500).send(err);
+            } else {
+                res.json({
+                    message: "Form registered successfully",
+                    results: results
+                });
+            }
+        });
+    })
+});
+
+app.get("/GetLoadout/:SteamId", (req, res) => {
+
+    const query = "SELECT `Loadout` FROM `Loadouts` WHERE (`SteamId` = ?);"
+    const SteamId = req.params.SteamId
+
+    db.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error getting DB connection:', err);
+            res.status(500).send(err);
+            return;
+        }
+
+        connection.query(query, SteamId, (err, results) => {
+            connection.release();
+
+            if (err) {
+                res.status(500).send(err)
+                console.error("Database connection failed:", err);
+                return
+            }
+            else {
+                if (results.length > 0) {
+                    res.send(results[0].Loadout)
+                }
+            }
+        })
+    })
+})
+
 app.get("/getSteamUser/:steamId", async (req, res) => {
     const steamId = req.params.steamId;
     const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_API_KEY}&steamids=${steamId}`;
