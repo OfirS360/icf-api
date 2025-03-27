@@ -476,34 +476,37 @@ app.post("/SaveLoadout", (req, res) => {
     })
 });
 
-app.get("/GetLoadout/:SteamId", (req, res) => {
+    app.get("/GetLoadout/:SteamId", (req, res) => {
 
-    const query = "SELECT `Loadout` FROM `Loadouts` WHERE (`SteamId` = ?);"
-    const SteamId = req.params.SteamId
+        const query = "SELECT `Loadout` FROM `Loadouts` WHERE (`SteamId` = ?);"
+        const SteamId = req.params.SteamId
 
-    db.getConnection((err, connection) => {
-        if (err) {
-            console.error('Error getting DB connection:', err);
-            res.status(500).send(err);
-            return;
-        }
-
-        connection.query(query, SteamId, (err, results) => {
-            connection.release();
-
+        db.getConnection((err, connection) => {
             if (err) {
-                res.status(500).send(err)
-                console.error("Database connection failed:", err);
-                return
+                console.error('Error getting DB connection:', err);
+                res.status(500).send(err);
+                return;
             }
-            else {
-                if (results.length > 0) {
-                    res.send(results[0].Loadout)
+
+            connection.query(query, SteamId, (err, results) => {
+                connection.release();
+
+                if (err) {
+                    res.status(500).send(err)
+                    console.error("Database connection failed:", err);
+                    return
                 }
-            }
+                else {
+                    if (results.length > 0) {
+                        res.send(results[0].Loadout)
+                    }
+                    else{
+                        res.send(null)
+                    }
+                }
+            })
         })
     })
-})
 
 app.get("/getSteamUser/:steamId", async (req, res) => {
     const steamId = req.params.steamId;
